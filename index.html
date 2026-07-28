@@ -40,13 +40,15 @@ under prefers-reduced-motion.
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
-      background: var(--court);
+      /* the fixed #bgstage paints the scene; body stays transparent */
+      background: transparent;
       color: var(--chalk);
       font-family: var(--body);
       font-size: 21px;
       line-height: 1.5;
       overflow-x: hidden;
     }
+    html { background: var(--court); }
     ::selection { background: var(--yellow); color: var(--ink); }
 
     /* ---------- CRT scanlines + vignette ---------- */
@@ -113,9 +115,7 @@ under prefers-reduced-motion.
     .hero {
       position: relative;
       padding: 96px 0 72px;
-      /* hard-stop pixel court floor */
-      background:
-        linear-gradient(180deg, transparent 0 78%, var(--wood-deep) 78% 80%, var(--wood) 80% 100%);
+      /* the fixed #bgstage scene provides the court floor */
     }
     .hero .eyebrow {
       font-family: var(--hud); font-size: 11px;
@@ -184,25 +184,107 @@ under prefers-reduced-motion.
     }
     .plate small { color: var(--blue); font-size: .62em; display: block; margin-bottom: 8px; }
 
-    /* ---------- stats (skills) ---------- */
-    .stat { margin-bottom: 22px; }
-    .stat .stat-top {
-      display: flex; justify-content: space-between; align-items: baseline;
-      font-family: var(--hud); font-size: 10.5px; margin-bottom: 8px;
-    }
-    .stat .stat-top .val { color: var(--yellow); }
-    .stat .bar {
-      height: 22px;
-      border: var(--px) solid var(--ink);
+    /* ---------- inventory (skills as equipment cards) ---------- */
+    .inv { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+    .item {
+      display: grid; grid-template-columns: 56px 1fr; gap: 16px;
+      align-items: start;
       background: var(--court-deep);
+      border: var(--px) solid var(--ink);
+      box-shadow: 6px 6px 0 0 var(--ink);
+      padding: 18px 18px 16px;
+    }
+    .item .icon {
+      width: 56px; height: 56px;
+      border: var(--px) solid var(--ink);
+      background: var(--court);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .item .icon svg { width: 40px; height: 40px; }
+    .item h3 {
+      font-family: var(--hud); font-size: 10.5px;
+      color: var(--yellow); line-height: 1.7; margin-bottom: 6px;
+    }
+    .item p { font-size: 20px; color: #cfcdc0; line-height: 1.4; }
+
+    /* ---------- background stage: scroll-scrubbed dunk scene ---------- */
+    #bgstage { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+    #bgstage .bg-day {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, #20305a 0 45%, #3b5a86 45% 75%, #57779c 75% 100%);
+    }
+    #bgstage .bg-night {
+      position: absolute; inset: 0; opacity: 0;
+      background: linear-gradient(180deg, #0b0c1a 0 45%, #161830 45% 75%, #1f2240 75% 100%);
+    }
+    #bgstage .bg-town {
+      position: absolute; left: 0; right: 0; bottom: 12vh; height: 26vh; opacity: .55;
+      background:
+        repeating-linear-gradient(90deg, #141631 0 90px, transparent 90px 150px, #10122a 150px 260px, transparent 260px 330px),
+        repeating-linear-gradient(90deg, transparent 0 40px, #0e1024 40px 120px, transparent 120px 210px);
+      background-position: 0 100%, 60px 100%;
+      background-repeat: repeat-x;
+    }
+    #bgstage .bg-floor {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 12vh;
+      background: linear-gradient(180deg, var(--wood-deep) 0 8%, var(--wood) 8% 100%);
+      box-shadow: 0 -4px 0 0 var(--ink);
+    }
+    #bgstage .bg-hoop { position: absolute; width: 120px; height: 240px; }
+    #dunker { position: absolute; left: 0; top: 0; width: 72px; height: 108px; will-change: transform; }
+    #dunker .f { display: none; }
+    #dunker[data-frame="run"] .f-run { display: block; }
+    #dunker[data-frame="leap"] .f-leap { display: block; }
+    #dunker[data-frame="dunk"] .f-dunk { display: block; }
+    #dunker[data-frame="yay"] .f-yay { display: block; }
+    #bgstage .bg-ball {
+      position: absolute; left: 0; top: 0; width: 22px; height: 22px; opacity: 0;
+      background: var(--orange); box-shadow: inset -4px -4px 0 0 var(--orange-deep), 0 0 0 3px var(--ink);
+      will-change: transform;
+    }
+    #bgstage .bg-slam {
+      position: absolute; left: 50%; top: 38%;
+      transform: translate(-50%, -50%);
+      font-family: var(--hud); font-size: clamp(24px, 6vw, 54px);
+      color: var(--yellow); text-shadow: 5px 5px 0 var(--red), 10px 10px 0 var(--ink);
+      opacity: 0; white-space: nowrap; will-change: opacity, transform;
+    }
+    /* readability veil: the scene stays visible but the resume stays legible */
+    #bgstage .bg-veil {
+      position: absolute; inset: 0;
+      background: rgba(13, 14, 26, 0.52);
+    }
+
+    /* ---------- bonus mini-game ---------- */
+    #minigame {
+      position: fixed; inset: 0; z-index: 90;
+      background: rgba(13, 14, 26, .92);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    }
+    #minigame[hidden] { display: none; }
+    #mg-head {
+      display: flex; gap: 26px; align-items: baseline;
+      font-family: var(--hud); font-size: 11px; color: var(--chalk);
+    }
+    #mg-head .sc { color: var(--yellow); }
+    #mg-canvas {
+      width: min(92vw, 640px);
+      image-rendering: pixelated;
+      border: var(--px) solid var(--ink);
+      box-shadow: 8px 8px 0 0 var(--ink);
+      background: var(--court-deep);
+      cursor: pointer;
+      touch-action: none;
+    }
+    #mg-hint { font-family: var(--hud); font-size: 9px; color: #8a8ca5; }
+    #mg-close {
+      font-family: var(--hud); font-size: 10px;
+      background: var(--red); color: var(--chalk);
+      border: var(--px) solid var(--ink);
       box-shadow: 4px 4px 0 0 var(--ink);
+      padding: 10px 16px; cursor: pointer;
     }
-    .stat .bar i {
-      display: block; height: 100%;
-      width: 0; /* animated */
-      background: linear-gradient(180deg, var(--orange) 0 55%, var(--orange-deep) 55% 100%);
-    }
-    .stat:nth-child(odd) .bar i { background: linear-gradient(180deg, var(--red) 0 55%, #a02531 55% 100%); }
+    #mg-close:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 0 var(--ink); }
 
     /* ---------- stage select (projects) ---------- */
     .stages { display: grid; grid-template-columns: 1fr; gap: 34px; }
@@ -289,6 +371,7 @@ under prefers-reduced-motion.
     .continue .blink { color: var(--yellow); animation: blink 1s steps(2) infinite; }
 
     @media (max-width: 720px) {
+      .inv { grid-template-columns: 1fr; }
       #ball { width: 56px; height: 56px; right: 5%; top: 8px; }
       .ball-hint { display: none; }
       .hud .hud-mid { display: none; }
@@ -305,6 +388,62 @@ under prefers-reduced-motion.
 </head>
 <body class="scanlines">
 
+  <!-- BACKGROUND STAGE: scroll-scrubbed pixel dunk scene -->
+  <div id="bgstage" aria-hidden="true">
+    <div class="bg-day"></div>
+    <div class="bg-night" id="bg-night"></div>
+    <div class="bg-town"></div>
+    <div class="bg-floor"></div>
+    <!-- hoop: backboard + rim, pixel SVG -->
+    <svg class="bg-hoop" id="bg-hoop" viewBox="0 0 60 120" shape-rendering="crispEdges">
+      <rect x="52" y="0" width="6" height="120" fill="#2a2c48"/>
+      <rect x="14" y="8" width="40" height="30" fill="#e8e5d8"/>
+      <rect x="14" y="8" width="40" height="30" fill="none" stroke="#0d0e1a" stroke-width="3"/>
+      <rect x="26" y="18" width="16" height="12" fill="none" stroke="#d9333f" stroke-width="3"/>
+      <rect x="10" y="38" width="26" height="4" fill="#d9333f"/>
+      <rect x="10" y="42" width="3" height="8" fill="#e8e5d8"/><rect x="16" y="42" width="3" height="8" fill="#e8e5d8"/>
+      <rect x="22" y="42" width="3" height="8" fill="#e8e5d8"/><rect x="28" y="42" width="3" height="8" fill="#e8e5d8"/>
+    </svg>
+    <!-- dunker: 4-pose pixel sprite (12x18 grid) -->
+    <svg id="dunker" data-frame="run" viewBox="0 0 12 18" shape-rendering="crispEdges" aria-hidden="true">
+      <g class="f f-run">
+        <rect x="4" y="0" width="4" height="1" fill="#1a1b2e"/><rect x="3" y="1" width="5" height="2" fill="#e8b48a"/>
+        <rect x="3" y="3" width="6" height="4" fill="#d9333f"/><rect x="4" y="4" width="1" height="2" fill="#f5f2e8"/>
+        <rect x="1" y="3" width="2" height="1" fill="#e8b48a"/><rect x="9" y="4" width="2" height="1" fill="#e8b48a"/>
+        <rect x="3" y="7" width="5" height="2" fill="#1a1b2e"/>
+        <rect x="2" y="9" width="2" height="3" fill="#e8b48a"/><rect x="7" y="9" width="2" height="2" fill="#e8b48a"/>
+        <rect x="1" y="12" width="3" height="2" fill="#f5f2e8"/><rect x="7" y="11" width="3" height="2" fill="#f5f2e8"/>
+      </g>
+      <g class="f f-leap">
+        <rect x="4" y="0" width="4" height="1" fill="#1a1b2e"/><rect x="3" y="1" width="5" height="2" fill="#e8b48a"/>
+        <rect x="3" y="3" width="6" height="4" fill="#d9333f"/><rect x="5" y="4" width="1" height="2" fill="#f5f2e8"/>
+        <rect x="9" y="1" width="2" height="3" fill="#e8b48a"/><rect x="1" y="4" width="2" height="2" fill="#e8b48a"/>
+        <rect x="3" y="7" width="5" height="2" fill="#1a1b2e"/>
+        <rect x="2" y="9" width="2" height="4" fill="#e8b48a"/><rect x="8" y="9" width="2" height="3" fill="#e8b48a"/>
+        <rect x="1" y="13" width="3" height="2" fill="#f5f2e8"/><rect x="8" y="12" width="3" height="2" fill="#f5f2e8"/>
+      </g>
+      <g class="f f-dunk">
+        <rect x="4" y="2" width="4" height="1" fill="#1a1b2e"/><rect x="3" y="3" width="5" height="2" fill="#e8b48a"/>
+        <rect x="3" y="5" width="6" height="4" fill="#d9333f"/><rect x="5" y="6" width="1" height="2" fill="#f5f2e8"/>
+        <rect x="8" y="0" width="2" height="5" fill="#e8b48a"/><rect x="2" y="0" width="2" height="5" fill="#e8b48a"/>
+        <rect x="3" y="9" width="5" height="2" fill="#1a1b2e"/>
+        <rect x="3" y="11" width="2" height="3" fill="#e8b48a"/><rect x="7" y="11" width="2" height="3" fill="#e8b48a"/>
+        <rect x="2" y="14" width="3" height="2" fill="#f5f2e8"/><rect x="7" y="14" width="3" height="2" fill="#f5f2e8"/>
+      </g>
+      <g class="f f-yay">
+        <rect x="4" y="1" width="4" height="1" fill="#1a1b2e"/><rect x="3" y="2" width="5" height="2" fill="#e8b48a"/>
+        <rect x="3" y="4" width="6" height="4" fill="#d9333f"/><rect x="4" y="5" width="4" height="1" fill="#f5f2e8"/>
+        <rect x="1" y="0" width="2" height="4" fill="#e8b48a"/><rect x="9" y="0" width="2" height="4" fill="#e8b48a"/>
+        <rect x="3" y="8" width="5" height="2" fill="#1a1b2e"/>
+        <rect x="3" y="10" width="2" height="4" fill="#e8b48a"/><rect x="7" y="10" width="2" height="4" fill="#e8b48a"/>
+        <rect x="2" y="14" width="3" height="2" fill="#f5f2e8"/><rect x="7" y="14" width="3" height="2" fill="#f5f2e8"/>
+      </g>
+    </svg>
+    <div class="bg-ball" id="bg-ball"></div>
+    <div class="bg-veil"></div>
+    <div class="bg-slam" id="bg-slam">SLAM DUNK!!</div>
+  </div>
+
   <!-- BOOT SCREEN -->
   <div id="boot" role="button" tabindex="0" aria-label="Intro screen. Click or press any key to start.">
     <div class="boot-logo" id="boot-logo">ZHANG.EXE</div>
@@ -320,7 +459,10 @@ under prefers-reduced-motion.
       <a href="#stages">STAGES</a>
       <a href="#season">SEASON</a>
     </span>
-    <span class="coins">COINS <span id="coins">00</span></span>
+    <button class="coins" id="mg-open" title="Bonus game: shoot some hoops"
+      style="background:none;border:none;font:inherit;cursor:pointer;padding:4px 2px;color:var(--orange)">
+      COINS <span id="coins">00</span> · PLAY ▸
+    </button>
   </nav>
 
   <div class="wrap">
@@ -363,16 +505,40 @@ under prefers-reduced-motion.
       <p class="ball-hint">◀ DRAG THE BALL</p>
     </header>
 
-    <!-- STATS -->
+    <!-- INVENTORY (skills as equipment) -->
     <section id="stats">
-      <h2 class="plate"><small>PLAYER DATA</small>STATS</h2>
-      <div class="stat-list" id="stat-list">
-        <div class="stat" data-lv="95"><div class="stat-top"><span>AWS ARCHITECTURE · 15+ SERVICES IN PRODUCTION</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
-        <div class="stat" data-lv="93"><div class="stat-top"><span>GENAI / LLM SYSTEMS · BEDROCK, RAG, MULTI-AGENT</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
-        <div class="stat" data-lv="90"><div class="stat-top"><span>SYSTEM DESIGN AT SCALE · 100K+ CONCURRENT USERS</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
-        <div class="stat" data-lv="88"><div class="stat-top"><span>ZERO-TO-ONE PROTOTYPING · 6 POCS SHIPPED</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
-        <div class="stat" data-lv="87"><div class="stat-top"><span>PYTHON / NODE.JS / REACT</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
-        <div class="stat" data-lv="85"><div class="stat-top"><span>TECH LEADERSHIP · TEAMS OF 3-5 · 10+ MENTORED</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+      <h2 class="plate"><small>EQUIPMENT</small>INVENTORY</h2>
+      <div class="inv">
+        <div class="item">
+          <span class="icon"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="2" y="6" width="12" height="7" fill="#4fa8d8"/><rect x="4" y="3" width="8" height="3" fill="#4fa8d8"/><rect x="6" y="8" width="4" height="5" fill="#12131f"/></svg></span>
+          <div><h3>AWS ARCHITECTURE</h3>
+          <p>15+ services in production: Lambda, Step Functions, DynamoDB, Neptune, S3, CDK. Serverless first.</p></div>
+        </div>
+        <div class="item">
+          <span class="icon"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="3" y="2" width="10" height="9" fill="#ffd23f"/><rect x="5" y="4" width="2" height="2" fill="#12131f"/><rect x="9" y="4" width="2" height="2" fill="#12131f"/><rect x="5" y="8" width="6" height="1" fill="#12131f"/><rect x="6" y="11" width="4" height="3" fill="#ffd23f"/></svg></span>
+          <div><h3>GENAI / LLM SYSTEMS</h3>
+          <p>Bedrock, RAG, multi-agent pipelines, prompt engineering. From model evaluation to HIPAA production.</p></div>
+        </div>
+        <div class="item">
+          <span class="icon"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="1" y="10" width="3" height="5" fill="#d9333f"/><rect x="6" y="6" width="3" height="9" fill="#d9333f"/><rect x="11" y="2" width="3" height="13" fill="#d9333f"/></svg></span>
+          <div><h3>DESIGN FOR SCALE</h3>
+          <p>Systems for 100K+ concurrent users, 300K docs/day. Capacity planning, backpressure, graceful degradation.</p></div>
+        </div>
+        <div class="item">
+          <span class="icon"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="7" y="1" width="2" height="6" fill="#e8702a"/><rect x="5" y="3" width="6" height="2" fill="#e8702a"/><rect x="4" y="7" width="8" height="8" fill="#e8702a"/><rect x="6" y="9" width="4" height="4" fill="#12131f"/></svg></span>
+          <div><h3>ZERO-TO-ONE BUILDS</h3>
+          <p>6 GenAI proofs of concept shipped to enterprise customers. Prototype fast, harden what works.</p></div>
+        </div>
+        <div class="item">
+          <span class="icon"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="2" y="3" width="5" height="2" fill="#4fa8d8"/><rect x="2" y="7" width="9" height="2" fill="#4fa8d8"/><rect x="2" y="11" width="7" height="2" fill="#4fa8d8"/><rect x="12" y="2" width="2" height="12" fill="#f5f2e8"/></svg></span>
+          <div><h3>LANGUAGES</h3>
+          <p>Python, Node.js / JavaScript, React. Plus IaC: CDK, Terraform, CloudFormation.</p></div>
+        </div>
+        <div class="item">
+          <span class="icon"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="6" y="2" width="4" height="4" fill="#ffd23f"/><rect x="2" y="9" width="4" height="4" fill="#ffd23f"/><rect x="10" y="9" width="4" height="4" fill="#ffd23f"/><rect x="7" y="6" width="2" height="3" fill="#f5f2e8"/></svg></span>
+          <div><h3>TECH LEADERSHIP</h3>
+          <p>Led teams of 3-5 engineers. Mentored 10+, one through to promotion. Design docs that pass review.</p></div>
+        </div>
       </div>
     </section>
 
@@ -513,6 +679,14 @@ under prefers-reduced-motion.
     </footer>
   </div>
 
+  <!-- BONUS MINI-GAME: free-throw shootout -->
+  <div id="minigame" hidden role="dialog" aria-modal="true" aria-label="Bonus mini-game: free-throw shootout">
+    <div id="mg-head"><span>BONUS GAME · FREE THROW</span><span class="sc">SCORE <b id="mg-score">0</b></span><span>BEST <b id="mg-best">0</b></span></div>
+    <canvas id="mg-canvas" width="320" height="200"></canvas>
+    <p id="mg-hint">HOLD TO CHARGE · RELEASE TO SHOOT</p>
+    <button id="mg-close">EXIT ▸</button>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/animejs/dist/bundles/anime.umd.min.js"></script>
   <script>
   (() => {
@@ -552,11 +726,6 @@ under prefers-reduced-motion.
 
     if (reduce || !ok) {
       boot.classList.add('off');
-      // reduced motion / no lib: everything visible, bars filled instantly
-      $$('.stat').forEach((s) => {
-        s.querySelector('.bar i').style.width = s.dataset.lv + '%';
-        s.querySelector('.val').textContent = s.dataset.lv;
-      });
       $('#coins').textContent = '99';
     } else {
       scrambleIn($('#boot-logo'), 'ZHANG.EXE', 1100);
@@ -602,20 +771,12 @@ under prefers-reduced-motion.
 
     /* ---------- scroll-triggered sections ---------- */
     if (ok && !reduce && typeof onScroll === 'function') {
-      // stat bars fill + counters count when STATS enters
-      $$('.stat').forEach((s, i) => {
-        const lv = +s.dataset.lv;
-        const bar = s.querySelector('.bar i');
-        const val = s.querySelector('.val');
-        const st = { n: 0 };
-        animate(st, {
-          n: lv, duration: 1100, delay: i * 140,
-          modifier: (v) => Math.round(v),
-          onUpdate: () => {
-            bar.style.width = st.n + '%';
-            val.textContent = String(st.n).padStart(2, '0');
-          },
-          autoplay: onScroll({ target: s }),
+      // inventory items pop in like loot drops
+      $$('.item').forEach((el, i) => {
+        animate(el, {
+          opacity: [0, 1], scale: [0.86, 1],
+          ease: spring({ bounce: 0.45 }), duration: 550, delay: (i % 2) * 120,
+          autoplay: onScroll({ target: el }),
         });
       });
 
@@ -645,13 +806,203 @@ under prefers-reduced-motion.
           autoplay: onScroll({ target: el }),
         });
       });
-    } else if (!reduce && ok) {
-      // lib loaded but no onScroll (unexpected): fill bars immediately
-      $$('.stat').forEach((s) => {
-        s.querySelector('.bar i').style.width = s.dataset.lv + '%';
-        s.querySelector('.val').textContent = s.dataset.lv;
-      });
     }
+
+    /* ==========================================================
+       BACKGROUND STAGE: scroll-scrubbed dunk scene.
+       Scroll progress 0→1 drives a pixel player across the court,
+       into a leap, through the dunk, while day fades to night.
+       Discrete keyframes sampled per scroll frame = retro feel.
+       ========================================================== */
+    (() => {
+      if (reduce) { $('#dunker').dataset.frame = 'yay'; return; }
+      const dunker = $('#dunker');
+      const ballEl = $('#bg-ball');
+      const night = $('#bg-night');
+      const slam = $('#bg-slam');
+      const hoop = $('#bg-hoop');
+
+      let ticking = false;
+      function layout() {
+        const W = innerWidth, H = innerHeight;
+        // hoop stands near the right edge, rim height ~ 55% viewport
+        hoop.style.left = (W - 170) + 'px';
+        hoop.style.top = (H * 0.55 - 160) + 'px';
+        return { W, H };
+      }
+      let dims = layout();
+      addEventListener('resize', () => { dims = layout(); });
+
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const clamp01 = (t) => Math.max(0, Math.min(1, t));
+
+      function scrub() {
+        ticking = false;
+        const max = document.documentElement.scrollHeight - innerHeight;
+        const p = max > 0 ? clamp01(scrollY / max) : 0;
+        const { W, H } = dims;
+        const floorY = H * 0.88 - 100;          // player's feet on the floor
+        const rimX = W - 170 + 20, rimY = H * 0.55 - 118;
+
+        let x, y, frame, ballOn = false, bx = 0, by = 0;
+        if (p < 0.55) {
+          // run-up: left edge → 3/4 court; frame alternates for gait
+          const t = p / 0.55;
+          x = lerp(-80, W * 0.62, t);
+          y = floorY;
+          frame = (Math.floor(t * 22) % 2 === 0) ? 'run' : 'leap';
+          ballOn = true;
+          bx = x + 52; by = y + 66 + Math.abs(Math.sin(t * 22)) * -26; // dribble
+        } else if (p < 0.8) {
+          // leap: arc from floor to the rim
+          const t = (p - 0.55) / 0.25;
+          x = lerp(W * 0.62, rimX - 70, t);
+          y = floorY - Math.sin(t * Math.PI * 0.5) * (floorY - rimY - 20);
+          frame = 'leap';
+          ballOn = true; bx = x + 56; by = y + 8;
+        } else if (p < 0.92) {
+          // the dunk: hands on the rim, ball through
+          const t = (p - 0.8) / 0.12;
+          x = rimX - 70; y = rimY - 10 + t * 26;
+          frame = 'dunk';
+          ballOn = true; bx = rimX + 4; by = rimY + t * 90;
+        } else {
+          // landed: celebration
+          x = rimX - 90; y = floorY;
+          frame = 'yay';
+        }
+        dunker.style.transform = `translate(${x}px, ${y}px)`;
+        if (dunker.dataset.frame !== frame) dunker.dataset.frame = frame;
+        ballEl.style.opacity = ballOn ? 1 : 0;
+        if (ballOn) ballEl.style.transform = `translate(${bx}px, ${by}px)`;
+
+        // night falls through the leap and dunk
+        night.style.opacity = clamp01((p - 0.45) / 0.4);
+        // SLAM DUNK!! flashes at the moment of the dunk
+        const s = p >= 0.8 && p < 0.98 ? clamp01((p - 0.8) / 0.04) : 0;
+        slam.style.opacity = s;
+        slam.style.transform = `translate(-50%, -50%) scale(${0.6 + s * 0.4})`;
+      }
+      addEventListener('scroll', () => {
+        if (!ticking) { ticking = true; requestAnimationFrame(scrub); }
+      }, { passive: true });
+      scrub();
+    })();
+
+    /* ==========================================================
+       BONUS MINI-GAME: free-throw shootout on a pixel canvas.
+       Hold to charge power, release to shoot. Ball follows a
+       parabola; rim collision is a simple window test.
+       ========================================================== */
+    (() => {
+      const modal = $('#minigame');
+      const cv = $('#mg-canvas');
+      const ctx = cv.getContext('2d');
+      const scoreEl = $('#mg-score');
+      const bestEl = $('#mg-best');
+      let score = 0;
+      let best = +(localStorage.getItem('mg-best') || 0);
+      bestEl.textContent = best;
+
+      const G = 0.5;                        // gravity px/frame^2
+      const shooter = { x: 48, y: 158 };
+      const rim = { x: 252, y: 92, w: 26 };
+      let ball = null;                      // { x, y, vx, vy }
+      let charge = 0, charging = false, raf = null, msg = '', msgT = 0;
+
+      function draw() {
+        // court
+        ctx.fillStyle = '#12131f'; ctx.fillRect(0, 0, 320, 200);
+        ctx.fillStyle = '#1f2240'; ctx.fillRect(0, 0, 320, 24);
+        ctx.fillStyle = '#8a5a2b'; ctx.fillRect(0, 176, 320, 24);
+        ctx.fillStyle = '#c8894a'; ctx.fillRect(0, 180, 320, 20);
+        // hoop: pole, board, rim
+        ctx.fillStyle = '#2a2c48'; ctx.fillRect(300, 40, 8, 140);
+        ctx.fillStyle = '#e8e5d8'; ctx.fillRect(268, 48, 34, 26);
+        ctx.strokeStyle = '#d9333f'; ctx.lineWidth = 3; ctx.strokeRect(276, 55, 16, 12);
+        ctx.fillStyle = '#d9333f'; ctx.fillRect(rim.x - 2, rim.y, rim.w + 4, 4);
+        // net
+        ctx.fillStyle = '#e8e5d8';
+        for (let i = 0; i < 4; i++) ctx.fillRect(rim.x + 2 + i * 6, rim.y + 4, 2, 10);
+        // shooter sprite (blocky)
+        ctx.fillStyle = '#e8b48a'; ctx.fillRect(shooter.x, shooter.y - 26, 10, 8);
+        ctx.fillStyle = '#d9333f'; ctx.fillRect(shooter.x - 2, shooter.y - 18, 14, 12);
+        ctx.fillStyle = '#1a1b2e'; ctx.fillRect(shooter.x - 2, shooter.y - 6, 14, 4);
+        ctx.fillStyle = '#e8b48a'; ctx.fillRect(shooter.x + 10, shooter.y - 24, 6, 4);
+        // power bar
+        if (charging) {
+          ctx.fillStyle = '#0d0e1a'; ctx.fillRect(20, 20, 104, 12);
+          ctx.fillStyle = charge > 0.85 ? '#d9333f' : '#ffd23f';
+          ctx.fillRect(22, 22, charge * 100, 8);
+        }
+        // ball
+        if (ball) {
+          ctx.fillStyle = '#e8702a'; ctx.fillRect(ball.x - 4, ball.y - 4, 9, 9);
+          ctx.fillStyle = '#0d0e1a'; ctx.fillRect(ball.x - 4, ball.y - 1, 9, 2);
+        }
+        // message
+        if (msg && performance.now() < msgT) {
+          ctx.fillStyle = '#ffd23f'; ctx.font = '16px "Press Start 2P", monospace';
+          ctx.fillText(msg, 96, 120);
+        }
+      }
+
+      let lastT = 0;
+      function step(now) {
+        // normalize to 60fps units so 120Hz displays play identically
+        const dt = lastT ? Math.min(3, (now - lastT) / 16.67) : 1;
+        lastT = now;
+        if (charging && charge < 1) charge = Math.min(1, charge + 0.02 * dt);
+        if (ball) {
+          ball.x += ball.vx * dt; ball.y += ball.vy * dt; ball.vy += G * dt;
+          // scored? ball falling through the rim window
+          if (ball.vy > 0 && ball.y > rim.y && ball.y < rim.y + 12 &&
+              ball.x > rim.x + 2 && ball.x < rim.x + rim.w - 2) {
+            score += 2; scoreEl.textContent = score;
+            msg = 'SWISH! +2'; msgT = performance.now() + 900;
+            if (score > best) { best = score; bestEl.textContent = best; localStorage.setItem('mg-best', best); }
+            ball = null;
+          } else if (ball.y > 200 || ball.x > 330) {
+            msg = 'MISS'; msgT = performance.now() + 700;
+            ball = null;
+          }
+        }
+        draw();
+        raf = requestAnimationFrame(step);
+      }
+
+      function chargeStart(e) { e.preventDefault(); if (!ball) { charging = true; charge = 0; } }
+      function chargeEnd() {
+        if (!charging) return;
+        charging = false;
+        // solved numerically: charge 0.81-0.97 arcs through the rim window,
+        // so a full-power shot just overshoots — classic arcade tuning
+        ball = {
+          x: shooter.x + 14, y: shooter.y - 26,
+          vx: 4 + charge * 5,
+          vy: -(4.5 + charge * 3),
+        };
+      }
+
+      function open() {
+        modal.hidden = false;
+        score = 0; scoreEl.textContent = 0; msg = '';
+        lastT = 0;
+        raf = requestAnimationFrame(step);
+      }
+      function close() {
+        modal.hidden = true;
+        cancelAnimationFrame(raf);
+        ball = null; charging = false;
+      }
+
+      $('#mg-open').addEventListener('click', open);
+      $('#mg-close').addEventListener('click', close);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) close(); });
+      cv.addEventListener('pointerdown', chargeStart);
+      cv.addEventListener('pointerup', chargeEnd);
+      cv.addEventListener('pointerleave', () => { if (charging) chargeEnd(); });
+    })();
   })();
   </script>
 </body>
