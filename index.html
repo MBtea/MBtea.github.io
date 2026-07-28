@@ -1,248 +1,582 @@
 <!DOCTYPE html>
+<!--
+THESIS: A 90s Slam Dunk-era arcade sports game that happens to be a resume.
+The visitor inserts a coin, watches the boot screen, and browses STATS /
+STAGE SELECT / SEASON RECORD like a Super Famicom basketball cartridge.
+OWN-WORLD: night-court navy ground, Shohoku red, scoreboard yellow,
+basketball orange, court-wood brown; Press Start 2P HUD caps + VT323 body;
+4px pixel grid, hard offset shadows, CRT scanlines, steps() motion.
+MOTION: anime.js v4 — boot scramble + PRESS START blink (skippable),
+char-stagger hero drop, draggable spring basketball, scrambling stat
+counters, onScroll section entrances, steps() idle bobs. All collapse
+under prefers-reduced-motion.
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Xian Zhang — Software Engineer</title>
-  <meta name="description" content="Xian Zhang. Software engineer building cloud and AI systems on AWS." />
+  <title>XIAN ZHANG · PLAYER 1 · Software Engineer</title>
+  <meta name="description" content="Xian Zhang. Software engineer building cloud and AI systems on AWS. Retro arcade portfolio." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #fafaf8;
-      --ink: #1c1c1a;
-      --ink-soft: #5f5e58;
-      --rule: #e3e1d8;
-      --accent: #1b5e4a;
-      --accent-soft: rgba(27, 94, 74, 0.09);
-      --card: #ffffff;
-      --on-accent: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #161815;
-        --ink: #e8e6df;
-        --ink-soft: #a3a198;
-        --rule: #2e312c;
-        --accent: #5dbf9e;
-        --accent-soft: rgba(93, 191, 158, 0.12);
-        --card: #1d201c;
-        --on-accent: #10140f;
-      }
+      --court: #1a1b2e;      /* night-court navy ground */
+      --court-deep: #12131f;
+      --ink: #0d0e1a;        /* hard shadow ink */
+      --chalk: #f5f2e8;      /* line-paint white */
+      --red: #d9333f;        /* Shohoku jersey red */
+      --orange: #e8702a;     /* basketball */
+      --orange-deep: #b2521c;
+      --yellow: #ffd23f;     /* scoreboard bulbs */
+      --blue: #4fa8d8;       /* Shonan sky */
+      --wood: #c8894a;       /* hardwood */
+      --wood-deep: #8a5a2b;
+      --px: 4px;             /* the pixel */
+      --hud: "Press Start 2P", monospace;
+      --body: "VT323", monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      font-size: 16px;
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
+      background: var(--court);
+      color: var(--chalk);
+      font-family: var(--body);
+      font-size: 21px;
+      line-height: 1.5;
+      overflow-x: hidden;
     }
-    .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 96px; }
+    ::selection { background: var(--yellow); color: var(--ink); }
 
-    /* ---------- header ---------- */
-    header { padding: 88px 0 56px; }
-    .kicker {
-      font-size: 14px;
-      color: var(--accent);
-      font-weight: 600;
-      margin-bottom: 10px;
+    /* ---------- CRT scanlines + vignette ---------- */
+    .scanlines::after {
+      content: "";
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 60;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 2px, transparent 2px 4px);
     }
-    h1 {
-      font-size: clamp(2.1rem, 5vw, 3rem);
-      font-weight: 750;
-      letter-spacing: -0.02em;
-      line-height: 1.12;
+    .scanlines::before {
+      content: "";
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 59;
+      background: radial-gradient(ellipse at 50% 45%, transparent 62%, rgba(0,0,0,.38) 100%);
     }
-    .lede {
-      margin-top: 16px;
-      font-size: 18px;
-      color: var(--ink-soft);
-      max-width: 56ch;
+
+    /* ---------- boot screen ---------- */
+    #boot {
+      position: fixed; inset: 0; z-index: 100;
+      background: var(--ink);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 34px; cursor: pointer;
     }
-    .links { margin-top: 26px; display: flex; gap: 14px; flex-wrap: wrap; }
-    .links a {
+    #boot .boot-logo {
+      font-family: var(--hud);
+      font-size: clamp(18px, 4.6vw, 40px);
+      color: var(--yellow);
+      letter-spacing: .08em;
+      text-shadow: 4px 4px 0 var(--red);
+    }
+    #boot .press-start {
+      font-family: var(--hud);
+      font-size: clamp(10px, 1.8vw, 15px);
+      color: var(--chalk);
+      animation: blink 1s steps(2) infinite;
+    }
+    #boot .boot-note { font-size: 17px; color: #6a6c85; }
+    @keyframes blink { 50% { opacity: 0; } }
+    #boot.off { display: none; }
+
+    /* ---------- HUD top bar ---------- */
+    .hud {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+      background: var(--court-deep);
+      border-bottom: var(--px) solid var(--ink);
+      box-shadow: 0 var(--px) 0 0 var(--red);
+      font-family: var(--hud); font-size: 10px;
+      letter-spacing: .06em;
+    }
+    .hud .p1 { color: var(--yellow); }
+    .hud .hud-mid { color: var(--chalk); display: flex; gap: 18px; }
+    .hud .hud-mid a { color: var(--chalk); text-decoration: none; padding: 4px 2px; }
+    .hud .hud-mid a:hover { color: var(--yellow); }
+    .hud .hud-mid a:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+    .hud .coins { color: var(--orange); }
+
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 22px 120px; }
+
+    /* ---------- hero court ---------- */
+    .hero {
+      position: relative;
+      padding: 96px 0 72px;
+      /* hard-stop pixel court floor */
+      background:
+        linear-gradient(180deg, transparent 0 78%, var(--wood-deep) 78% 80%, var(--wood) 80% 100%);
+    }
+    .hero .eyebrow {
+      font-family: var(--hud); font-size: 11px;
+      color: var(--blue); margin-bottom: 22px;
+    }
+    .hero h1 {
+      font-family: var(--hud);
+      font-size: clamp(26px, 6.4vw, 58px);
+      line-height: 1.25;
+      color: var(--chalk);
+      text-shadow: 5px 5px 0 var(--red);
+      margin-bottom: 24px;
+    }
+    .hero h1 .ch { display: inline-block; white-space: pre; }
+    .hero .lede {
+      font-size: 24px; max-width: 52ch; color: #cfcdc0;
+      margin-bottom: 36px;
+    }
+    .hero .lede b { color: var(--yellow); font-weight: 400; }
+
+    .btn-row { display: flex; gap: 18px; flex-wrap: wrap; }
+    .pxbtn {
+      font-family: var(--hud); font-size: 11px;
       display: inline-block;
-      padding: 9px 18px;
-      border: 1.5px solid var(--rule);
-      border-radius: 8px;
+      padding: 14px 20px 12px;
       color: var(--ink);
+      background: var(--yellow);
       text-decoration: none;
-      font-size: 14.5px;
-      font-weight: 550;
-      transition: border-color 150ms ease, background 150ms ease;
+      border: var(--px) solid var(--ink);
+      box-shadow: 6px 6px 0 0 var(--ink);
+      transition: none;
     }
-    .links a:hover { border-color: var(--accent); background: var(--accent-soft); }
-    .links a.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-    .links a.primary:hover { opacity: 0.9; }
+    .pxbtn:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 0 var(--ink); }
+    .pxbtn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 0 var(--ink); }
+    .pxbtn:focus-visible { outline: 3px solid var(--chalk); outline-offset: 3px; }
+    .pxbtn.alt { background: var(--court-deep); color: var(--chalk); }
+    .pxbtn.red { background: var(--red); color: var(--chalk); }
 
-    /* ---------- sections ---------- */
-    section { margin-top: 72px; }
-    h2 {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--rule);
-      margin-bottom: 28px;
+    /* pixel basketball — draggable sprite */
+    #ball {
+      position: absolute;
+      right: 4%; top: 120px;
+      width: 96px; height: 96px;
+      image-rendering: pixelated;
+      cursor: grab;
+      z-index: 5;
+      filter: drop-shadow(8px 10px 0 rgba(13,14,26,.55));
     }
-
-    /* ---------- skills ---------- */
-    .skills { display: flex; flex-wrap: wrap; gap: 10px; }
-    .skills span {
-      padding: 6px 14px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border-radius: 999px;
-      font-size: 14px;
-      font-weight: 550;
+    #ball:active { cursor: grabbing; }
+    .ball-hint {
+      position: absolute; right: 3%; top: 232px;
+      font-family: var(--hud); font-size: 8px; color: #6a6c85;
     }
 
-    /* ---------- projects ---------- */
-    .project { padding: 22px 0; }
-    .project + .project { border-top: 1px solid var(--rule); }
-    .project h3 { font-size: 19px; font-weight: 650; letter-spacing: -0.01em; }
-    .project h3 a { color: inherit; text-decoration: none; }
-    .project h3 a:hover { color: var(--accent); }
-    .project .tech {
-      margin-top: 4px;
-      font-size: 13.5px;
-      color: var(--accent);
-      font-weight: 550;
+    /* ---------- section headers: scoreboard plates ---------- */
+    section { margin-top: 96px; }
+    .plate {
+      display: inline-block;
+      font-family: var(--hud); font-size: clamp(13px, 2.4vw, 18px);
+      color: var(--yellow);
+      background: var(--court-deep);
+      padding: 14px 22px 12px;
+      border: var(--px) solid var(--ink);
+      box-shadow: 6px 6px 0 0 var(--ink), inset 0 -4px 0 0 rgba(0,0,0,.4);
+      margin-bottom: 34px;
     }
-    .project p { margin-top: 10px; color: var(--ink-soft); max-width: 68ch; }
+    .plate small { color: var(--blue); font-size: .62em; display: block; margin-bottom: 8px; }
 
-    /* ---------- experience ---------- */
-    .job { display: grid; grid-template-columns: 150px 1fr; gap: 20px; padding: 20px 0; }
-    .job + .job { border-top: 1px solid var(--rule); }
-    .job .when { font-size: 14px; color: var(--ink-soft); padding-top: 3px; }
-    .job h3 { font-size: 17px; font-weight: 650; }
-    .job .org { color: var(--accent); font-weight: 550; font-size: 15px; }
-    .job p { margin-top: 8px; color: var(--ink-soft); font-size: 15px; max-width: 62ch; }
+    /* ---------- stats (skills) ---------- */
+    .stat { margin-bottom: 22px; }
+    .stat .stat-top {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-family: var(--hud); font-size: 10.5px; margin-bottom: 8px;
+    }
+    .stat .stat-top .val { color: var(--yellow); }
+    .stat .bar {
+      height: 22px;
+      border: var(--px) solid var(--ink);
+      background: var(--court-deep);
+      box-shadow: 4px 4px 0 0 var(--ink);
+    }
+    .stat .bar i {
+      display: block; height: 100%;
+      width: 0; /* animated */
+      background: linear-gradient(180deg, var(--orange) 0 55%, var(--orange-deep) 55% 100%);
+    }
+    .stat:nth-child(odd) .bar i { background: linear-gradient(180deg, var(--red) 0 55%, #a02531 55% 100%); }
 
+    /* ---------- stage select (projects) ---------- */
+    .stages { display: grid; grid-template-columns: 1fr; gap: 34px; }
+    .stage {
+      position: relative;
+      background: var(--court-deep);
+      border: var(--px) solid var(--ink);
+      box-shadow: 8px 8px 0 0 var(--ink);
+      padding: 26px 26px 24px;
+    }
+    .stage .stage-no {
+      position: absolute; top: -14px; left: 18px;
+      font-family: var(--hud); font-size: 10px;
+      background: var(--red); color: var(--chalk);
+      border: var(--px) solid var(--ink);
+      padding: 6px 10px 5px;
+    }
+    .stage h3 {
+      font-family: var(--hud);
+      font-size: clamp(13px, 2.2vw, 17px);
+      color: var(--chalk); line-height: 1.5;
+      margin: 10px 0 12px;
+    }
+    .stage .tech {
+      font-family: var(--hud); font-size: 9px;
+      color: var(--blue); margin-bottom: 14px; line-height: 2;
+    }
+    .stage p { font-size: 21px; color: #cfcdc0; max-width: 68ch; }
+    .stage .stage-cta {
+      margin-top: 18px;
+      font-family: var(--hud); font-size: 10px;
+    }
+    .stage .stage-cta a { color: var(--yellow); text-decoration: none; }
+    .stage .stage-cta a:hover { color: var(--chalk); }
+    .stage .stage-cta a:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+
+    /* ---------- season record (experience) ---------- */
+    .season { border-left: var(--px) solid var(--wood); padding-left: 26px; }
+    .game { position: relative; padding: 6px 0 30px; }
+    .game::before {
+      content: "";
+      position: absolute; left: calc(-26px - var(--px) - 8px); top: 14px;
+      width: 16px; height: 16px;
+      background: var(--orange);
+      border: var(--px) solid var(--ink);
+    }
+    .game .when {
+      font-family: var(--hud); font-size: 9.5px;
+      color: var(--blue); margin-bottom: 10px;
+    }
+    .game h3 { font-family: var(--hud); font-size: 13px; line-height: 1.6; }
+    .game .org { color: var(--yellow); font-size: 22px; }
+    .game p { margin-top: 8px; color: #cfcdc0; max-width: 62ch; }
+
+    /* ---------- footer ---------- */
     footer {
-      margin-top: 88px;
-      padding-top: 20px;
-      border-top: 1px solid var(--rule);
-      font-size: 13.5px;
-      color: var(--ink-soft);
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
+      margin-top: 110px;
+      border-top: var(--px) solid var(--ink);
+      box-shadow: 0 calc(-1 * var(--px)) 0 0 var(--red) inset;
+      padding-top: 26px;
+      font-family: var(--hud); font-size: 9px;
+      color: #6a6c85; line-height: 2.2;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
     }
-    footer a { color: inherit; }
+    footer a { color: var(--blue); text-decoration: none; }
+    footer a:hover { color: var(--yellow); }
 
-    @media (max-width: 640px) {
-      header { padding: 56px 0 40px; }
-      .job { grid-template-columns: 1fr; gap: 4px; }
+    /* game-over marquee */
+    .continue {
+      margin-top: 96px; text-align: center;
+      font-family: var(--hud); font-size: clamp(12px, 2.4vw, 18px);
+      color: var(--chalk);
+    }
+    .continue .blink { color: var(--yellow); animation: blink 1s steps(2) infinite; }
+
+    @media (max-width: 720px) {
+      #ball { width: 56px; height: 56px; right: 5%; top: 8px; }
+      .ball-hint { display: none; }
+      .hud .hud-mid { display: none; }
+      .hero { padding-top: 76px; }
+      body { font-size: 19px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #boot { display: none; }
+      .press-start, .continue .blink { animation: none; }
+      html { scroll-behavior: auto; }
     }
   </style>
 </head>
-<body>
+<body class="scanlines">
+
+  <!-- BOOT SCREEN -->
+  <div id="boot" role="button" tabindex="0" aria-label="Intro screen. Click or press any key to start.">
+    <div class="boot-logo" id="boot-logo">ZHANG.EXE</div>
+    <div class="press-start">▶ PRESS START (CLICK)</div>
+    <p class="boot-note">© 2026 XIAN ZHANG · LICENSED BY NOBODY · 1 CREDIT</p>
+  </div>
+
+  <!-- HUD -->
+  <nav class="hud" aria-label="Site navigation">
+    <span class="p1">1P · XIAN ZHANG</span>
+    <span class="hud-mid">
+      <a href="#stats">STATS</a>
+      <a href="#stages">STAGES</a>
+      <a href="#season">SEASON</a>
+    </span>
+    <span class="coins">COINS <span id="coins">00</span></span>
+  </nav>
+
   <div class="wrap">
 
-    <header>
-      <p class="kicker">Software Engineer · Seattle, WA</p>
-      <h1>Xian Zhang</h1>
+    <!-- HERO -->
+    <header class="hero">
+      <p class="eyebrow">SOFTWARE ENGINEER · SEATTLE, WA · LV.99</p>
+      <h1 id="title">XIAN ZHANG</h1>
       <p class="lede">
-        I build cloud and AI systems on AWS. Recently focused on multi-agent
-        document-processing pipelines with Amazon Bedrock, serverless
-        architectures, and making complex systems explainable.
+        I build <b>cloud &amp; AI systems</b> on AWS: lately a multi-agent
+        document pipeline on <b>Amazon Bedrock</b>, serverless architecture,
+        and making complex systems explainable.
       </p>
-      <div class="links">
-        <!-- EDIT: replace the email and LinkedIn placeholders, add/remove links as you like -->
-        <a class="primary" href="mailto:your-email@example.com">Email me</a>
-        <a href="https://github.com/MBtea">GitHub</a>
-        <a href="https://www.linkedin.com/in/YOUR-LINKEDIN/">LinkedIn</a>
+      <div class="btn-row">
+        <!-- EDIT: replace email + LinkedIn -->
+        <a class="pxbtn" href="mailto:your-email@example.com">INSERT COIN ▸ EMAIL</a>
+        <a class="pxbtn alt" href="https://github.com/MBtea">GITHUB</a>
+        <a class="pxbtn red" href="https://www.linkedin.com/in/YOUR-LINKEDIN/">LINKEDIN</a>
       </div>
+
+      <!-- pixel basketball sprite (16x16 grid, inline SVG) -->
+      <svg id="ball" viewBox="0 0 16 16" aria-label="Pixel basketball. Drag me." shape-rendering="crispEdges">
+        <rect x="5" y="0" width="6" height="1" fill="#b2521c"/>
+        <rect x="3" y="1" width="2" height="1" fill="#b2521c"/><rect x="5" y="1" width="6" height="1" fill="#e8702a"/><rect x="11" y="1" width="2" height="1" fill="#b2521c"/>
+        <rect x="2" y="2" width="1" height="1" fill="#b2521c"/><rect x="3" y="2" width="4" height="1" fill="#e8702a"/><rect x="7" y="2" width="2" height="1" fill="#0d0e1a"/><rect x="9" y="2" width="4" height="1" fill="#e8702a"/><rect x="13" y="2" width="1" height="1" fill="#b2521c"/>
+        <rect x="1" y="3" width="1" height="2" fill="#b2521c"/><rect x="2" y="3" width="5" height="1" fill="#e8702a"/><rect x="7" y="3" width="2" height="1" fill="#0d0e1a"/><rect x="9" y="3" width="5" height="1" fill="#e8702a"/><rect x="14" y="3" width="1" height="2" fill="#b2521c"/>
+        <rect x="2" y="4" width="5" height="1" fill="#e8702a"/><rect x="7" y="4" width="2" height="1" fill="#0d0e1a"/><rect x="9" y="4" width="5" height="1" fill="#e8702a"/>
+        <rect x="0" y="5" width="1" height="6" fill="#b2521c"/><rect x="1" y="5" width="6" height="1" fill="#e8702a"/><rect x="7" y="5" width="2" height="1" fill="#0d0e1a"/><rect x="9" y="5" width="6" height="1" fill="#e8702a"/><rect x="15" y="5" width="1" height="6" fill="#b2521c"/>
+        <rect x="1" y="6" width="6" height="1" fill="#f08c42"/><rect x="7" y="6" width="2" height="1" fill="#0d0e1a"/><rect x="9" y="6" width="6" height="1" fill="#e8702a"/>
+        <rect x="1" y="7" width="14" height="2" fill="#0d0e1a"/>
+        <rect x="1" y="9" width="6" height="1" fill="#e8702a"/><rect x="7" y="9" width="2" height="1" fill="#0d0e1a"/><rect x="9" y="9" width="6" height="1" fill="#e8702a"/>
+        <rect x="1" y="10" width="6" height="1" fill="#e8702a"/><rect x="7" y="10" width="2" height="1" fill="#0d0e1a"/><rect x="9" y="10" width="6" height="1" fill="#d96524"/>
+        <rect x="1" y="11" width="1" height="2" fill="#b2521c"/><rect x="2" y="11" width="5" height="1" fill="#e8702a"/><rect x="7" y="11" width="2" height="1" fill="#0d0e1a"/><rect x="9" y="11" width="5" height="1" fill="#d96524"/><rect x="14" y="11" width="1" height="2" fill="#b2521c"/>
+        <rect x="2" y="12" width="5" height="1" fill="#e8702a"/><rect x="7" y="12" width="2" height="1" fill="#0d0e1a"/><rect x="9" y="12" width="5" height="1" fill="#d96524"/>
+        <rect x="2" y="13" width="1" height="1" fill="#b2521c"/><rect x="3" y="13" width="4" height="1" fill="#e8702a"/><rect x="7" y="13" width="2" height="1" fill="#0d0e1a"/><rect x="9" y="13" width="4" height="1" fill="#d96524"/><rect x="13" y="13" width="1" height="1" fill="#b2521c"/>
+        <rect x="3" y="14" width="2" height="1" fill="#b2521c"/><rect x="5" y="14" width="6" height="1" fill="#d96524"/><rect x="11" y="14" width="2" height="1" fill="#b2521c"/>
+        <rect x="5" y="15" width="6" height="1" fill="#b2521c"/>
+      </svg>
+      <p class="ball-hint">◀ DRAG THE BALL</p>
     </header>
 
-    <section id="skills">
-      <h2>Skills</h2>
-      <div class="skills">
-        <!-- EDIT: adjust to your real stack -->
-        <span>AWS (Lambda, S3, CDK, Bedrock)</span>
-        <span>Node.js / JavaScript</span>
-        <span>Python</span>
-        <span>Multi-agent AI systems</span>
-        <span>Serverless architecture</span>
-        <span>Infrastructure as Code</span>
+    <!-- STATS -->
+    <section id="stats">
+      <h2 class="plate"><small>PLAYER DATA</small>STATS</h2>
+      <div class="stat-list" id="stat-list">
+        <!-- EDIT: tune skills + levels (0-100) -->
+        <div class="stat" data-lv="92"><div class="stat-top"><span>AWS · LAMBDA / S3 / CDK / BEDROCK</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+        <div class="stat" data-lv="88"><div class="stat-top"><span>NODE.JS / JAVASCRIPT</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+        <div class="stat" data-lv="84"><div class="stat-top"><span>PYTHON</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+        <div class="stat" data-lv="90"><div class="stat-top"><span>MULTI-AGENT AI SYSTEMS</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+        <div class="stat" data-lv="86"><div class="stat-top"><span>SERVERLESS ARCHITECTURE</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
       </div>
     </section>
 
-    <section id="projects">
-      <h2>Selected Projects</h2>
-
-      <div class="project">
-        <h3>AI Records Classification Pipeline</h3>
-        <p class="tech">AWS Lambda · Amazon Bedrock (Claude) · Textract · S3 · CDK</p>
-        <p>
-          A document-processing pipeline that OCRs uploaded PDFs and classifies
-          them against federal Records Disposition Schedules using seven
-          specialized AI agents with weighted voting, evidence citations, and
-          confidence scores. Every classification is explainable and auditable.
-          Includes a live demo UI that visualizes the agents' reasoning in
-          real time.
-        </p>
-      </div>
-
-      <div class="project">
-        <!-- EDIT: replace with a real second project -->
-        <h3>Project Two — replace me</h3>
-        <p class="tech">Tech · stack · here</p>
-        <p>
-          One or two sentences: what it does, what problem it solves, and what
-          was interesting about building it. Link the title to the repo or a
-          live demo if public.
-        </p>
-      </div>
-
-      <div class="project">
-        <!-- EDIT: replace with a real third project, or delete this block -->
-        <h3>Project Three — replace me</h3>
-        <p class="tech">Tech · stack · here</p>
-        <p>
-          Keep descriptions short and concrete. Numbers help: users served,
-          latency cut, cost saved.
-        </p>
-      </div>
-    </section>
-
-    <section id="experience">
-      <h2>Experience</h2>
-
-      <div class="job">
-        <div class="when">2024 — Present</div>
-        <div>
-          <h3>Software Engineer</h3>
-          <p class="org">Amazon</p>
-          <!-- EDIT: your real title, team, dates, and 1-2 sentence summary -->
+    <!-- STAGE SELECT -->
+    <section id="stages">
+      <h2 class="plate"><small>SELECT YOUR GAME</small>STAGE SELECT</h2>
+      <div class="stages">
+        <article class="stage">
+          <span class="stage-no">STAGE 1</span>
+          <h3>AI RECORDS CLASSIFICATION PIPELINE</h3>
+          <p class="tech">AWS LAMBDA · BEDROCK (CLAUDE) · TEXTRACT · S3 · CDK</p>
           <p>
-            Building cloud and AI solutions on AWS. Replace this with a short
-            description of your team and what you own.
+            A document pipeline that OCRs PDFs and classifies them against
+            federal Records Disposition Schedules using seven specialized AI
+            agents. Weighted voting, evidence citations, confidence scores.
+            Every call is explainable and auditable, with a live demo UI that
+            shows the agents reasoning in real time.
           </p>
-        </div>
-      </div>
+        </article>
 
-      <div class="job">
-        <!-- EDIT: previous role, or delete this block -->
-        <div class="when">2021 — 2024</div>
-        <div>
-          <h3>Previous Role — replace me</h3>
+        <article class="stage">
+          <span class="stage-no">STAGE 2</span>
+          <!-- EDIT: real project -->
+          <h3>PROJECT TWO: REPLACE ME</h3>
+          <p class="tech">TECH · STACK · HERE</p>
+          <p>
+            One or two sentences: what it does, what problem it solves, what
+            was hard. Numbers score points: users served, latency cut, cost
+            saved.
+          </p>
+        </article>
+
+        <article class="stage">
+          <span class="stage-no">STAGE 3</span>
+          <!-- EDIT: real project, or delete this block -->
+          <h3>PROJECT THREE: REPLACE ME</h3>
+          <p class="tech">TECH · STACK · HERE</p>
+          <p>Short and concrete beats long and vague.</p>
+          <p class="stage-cta"><a href="https://github.com/MBtea">VIEW ALL ON GITHUB ▸</a></p>
+        </article>
+      </div>
+    </section>
+
+    <!-- SEASON RECORD -->
+    <section id="season">
+      <h2 class="plate"><small>CAREER MODE</small>SEASON RECORD</h2>
+      <div class="season">
+        <div class="game">
+          <p class="when">2024 - PRESENT</p>
+          <h3>SOFTWARE ENGINEER</h3>
+          <p class="org">Amazon</p>
+          <!-- EDIT: real title/team/summary -->
+          <p>Building cloud and AI solutions on AWS. Replace with a short
+          description of your team and what you own.</p>
+        </div>
+        <div class="game">
+          <!-- EDIT: previous role, or delete -->
+          <p class="when">2021 - 2024</p>
+          <h3>PREVIOUS ROLE: REPLACE ME</h3>
           <p class="org">Company</p>
           <p>One or two sentences about what you did there.</p>
         </div>
       </div>
+
+      <p class="continue">GAME OVER? NO! <span class="blink">CONTINUE ▸</span>
+        <a class="pxbtn" style="margin-left:14px" href="mailto:your-email@example.com">HIRE PLAYER 1</a>
+      </p>
     </section>
 
     <footer>
-      <span>© 2026 Xian Zhang</span>
-      <span>Built with plain HTML · hosted on <a href="https://pages.github.com">GitHub Pages</a></span>
+      <span>© 2026 XIAN ZHANG · NO ACTUAL COINS REQUIRED</span>
+      <span>BUILT WITH <a href="https://animejs.com">ANIME.JS</a> · HOSTED ON <a href="https://pages.github.com">GITHUB PAGES</a></span>
     </footer>
-
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/animejs/dist/bundles/anime.umd.min.js"></script>
+  <script>
+  (() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const A = window.anime || {};
+    const { animate, createTimeline, stagger, onScroll, createDraggable, spring } = A;
+    const ok = typeof animate === 'function';
+
+    /* ---------- helpers ---------- */
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+    // wrap each character of the H1 in a span (robust, no splitText dependency)
+    const title = $('#title');
+    title.innerHTML = [...title.textContent].map((c) => `<span class="ch">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
+
+    /* ---------- boot screen ---------- */
+    const boot = $('#boot');
+    const SCRAMBLE = '01▓▒░<>/#@$%&';
+    function scrambleIn(el, finalText, ms) {
+      const start = performance.now();
+      (function tick(now) {
+        const t = Math.min(1, (now - start) / ms);
+        const settled = Math.floor(t * finalText.length);
+        el.textContent = finalText.slice(0, settled)
+          + [...finalText.slice(settled)].map((c) => (c === ' ' ? ' ' : SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0])).join('');
+        if (t < 1) requestAnimationFrame(tick);
+      })(start);
+    }
+
+    function startGame() {
+      if (boot.classList.contains('off')) return;
+      boot.classList.add('off');
+      document.removeEventListener('keydown', startGame);
+      heroIn();
+    }
+
+    if (reduce || !ok) {
+      boot.classList.add('off');
+      // reduced motion / no lib: everything visible, bars filled instantly
+      $$('.stat').forEach((s) => {
+        s.querySelector('.bar i').style.width = s.dataset.lv + '%';
+        s.querySelector('.val').textContent = s.dataset.lv;
+      });
+      $('#coins').textContent = '99';
+    } else {
+      scrambleIn($('#boot-logo'), 'ZHANG.EXE', 1100);
+      boot.addEventListener('click', startGame);
+      document.addEventListener('keydown', startGame);
+      setTimeout(startGame, 6000); // auto-start; never hold the visitor hostage
+    }
+
+    /* ---------- hero entrance ---------- */
+    let heroDone = false;
+    function heroIn() {
+      if (heroDone || !ok) return;
+      heroDone = true;
+
+      const tl = createTimeline({ defaults: { duration: 500 } });
+      tl.add('.hero .eyebrow', { opacity: [0, 1], x: [-24, 0] })
+        .add('#title .ch', {
+          y: [-70, 0], opacity: [0, 1],
+          delay: stagger(45),
+          ease: spring({ bounce: 0.55 }),
+          duration: 700,
+        }, '-=280')
+        .add('.hero .lede', { opacity: [0, 1], y: [16, 0] }, '-=350')
+        .add('.btn-row .pxbtn', { opacity: [0, 1], y: [20, 0], delay: stagger(90) }, '-=250')
+        .add('#ball', { opacity: [0, 1], y: [-160, 0], ease: spring({ bounce: 0.7 }), duration: 900 }, '-=400');
+
+      // idle bob: discrete steps() feel via keyframes + coin counter
+      animate('#ball', {
+        y: [{ to: -10, duration: 700 }, { to: 0, duration: 700 }],
+        loop: true, ease: 'inOut(2)', delay: 1200,
+      });
+      const coins = { n: 0 };
+      animate(coins, {
+        n: 99, duration: 2600, delay: 600,
+        modifier: (v) => String(Math.round(v)).padStart(2, '0'),
+        onUpdate: () => { $('#coins').textContent = coins.n; },
+      });
+
+      if (typeof createDraggable === 'function') {
+        createDraggable('#ball', { releaseEase: spring({ bounce: 0.7 }) });
+      }
+    }
+
+    /* ---------- scroll-triggered sections ---------- */
+    if (ok && !reduce && typeof onScroll === 'function') {
+      // stat bars fill + counters count when STATS enters
+      $$('.stat').forEach((s, i) => {
+        const lv = +s.dataset.lv;
+        const bar = s.querySelector('.bar i');
+        const val = s.querySelector('.val');
+        const st = { n: 0 };
+        animate(st, {
+          n: lv, duration: 1100, delay: i * 140,
+          modifier: (v) => Math.round(v),
+          onUpdate: () => {
+            bar.style.width = st.n + '%';
+            val.textContent = String(st.n).padStart(2, '0');
+          },
+          autoplay: onScroll({ target: s }),
+        });
+      });
+
+      // stages punch in
+      $$('.stage').forEach((el, i) => {
+        animate(el, {
+          opacity: [0, 1], y: [46, 0],
+          ease: 'out(3)', duration: 550, delay: (i % 3) * 110,
+          autoplay: onScroll({ target: el }),
+        });
+      });
+
+      // season entries slide from the timeline rail
+      $$('.game').forEach((el, i) => {
+        animate(el, {
+          opacity: [0, 1], x: [-36, 0],
+          ease: 'out(3)', duration: 500, delay: i * 120,
+          autoplay: onScroll({ target: el }),
+        });
+      });
+
+      // scoreboard plates drop
+      $$('.plate').forEach((el) => {
+        animate(el, {
+          opacity: [0, 1], y: [-26, 0],
+          ease: spring({ bounce: 0.5 }), duration: 600,
+          autoplay: onScroll({ target: el }),
+        });
+      });
+    } else if (!reduce && ok) {
+      // lib loaded but no onScroll (unexpected): fill bars immediately
+      $$('.stat').forEach((s) => {
+        s.querySelector('.bar i').style.width = s.dataset.lv + '%';
+        s.querySelector('.val').textContent = s.dataset.lv;
+      });
+    }
+  })();
+  </script>
 </body>
 </html>
