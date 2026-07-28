@@ -231,6 +231,16 @@ under prefers-reduced-motion.
       color: var(--blue); margin-bottom: 14px; line-height: 2;
     }
     .stage p { font-size: 21px; color: #cfcdc0; max-width: 68ch; }
+    .stage .one-liner { color: var(--chalk); font-size: 22px; margin-bottom: 10px; }
+    .stage ul { list-style: none; margin-top: 6px; }
+    .stage ul li {
+      font-size: 20px; color: #cfcdc0;
+      padding: 3px 0 3px 26px; position: relative; max-width: 70ch;
+    }
+    .stage ul li::before {
+      content: "▸"; position: absolute; left: 4px; color: var(--orange);
+    }
+    .stage ul li b { color: var(--yellow); font-weight: 400; }
     .stage .stage-cta {
       margin-top: 18px;
       font-family: var(--hud); font-size: 10px;
@@ -320,9 +330,10 @@ under prefers-reduced-motion.
       <p class="eyebrow">SOFTWARE ENGINEER · SEATTLE, WA · LV.99</p>
       <h1 id="title">XIAN ZHANG</h1>
       <p class="lede">
-        I build <b>cloud &amp; AI systems</b> on AWS: lately a multi-agent
-        document pipeline on <b>Amazon Bedrock</b>, serverless architecture,
-        and making complex systems explainable.
+        I build <b>cloud &amp; AI systems</b> at AWS: founded an open-source
+        research platform, designed <b>HIPAA-compliant AI</b> serving 100K+
+        concurrent users, and shipped <b>GenAI prototypes</b> for customers
+        like McGraw Hill, NARA, and the world's 3rd-busiest airport.
       </p>
       <div class="btn-row">
         <!-- EDIT: replace email + LinkedIn -->
@@ -356,12 +367,12 @@ under prefers-reduced-motion.
     <section id="stats">
       <h2 class="plate"><small>PLAYER DATA</small>STATS</h2>
       <div class="stat-list" id="stat-list">
-        <!-- EDIT: tune skills + levels (0-100) -->
-        <div class="stat" data-lv="92"><div class="stat-top"><span>AWS · LAMBDA / S3 / CDK / BEDROCK</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
-        <div class="stat" data-lv="88"><div class="stat-top"><span>NODE.JS / JAVASCRIPT</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
-        <div class="stat" data-lv="84"><div class="stat-top"><span>PYTHON</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
-        <div class="stat" data-lv="90"><div class="stat-top"><span>MULTI-AGENT AI SYSTEMS</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
-        <div class="stat" data-lv="86"><div class="stat-top"><span>SERVERLESS ARCHITECTURE</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+        <div class="stat" data-lv="95"><div class="stat-top"><span>AWS ARCHITECTURE · 15+ SERVICES IN PRODUCTION</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+        <div class="stat" data-lv="93"><div class="stat-top"><span>GENAI / LLM SYSTEMS · BEDROCK, RAG, MULTI-AGENT</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+        <div class="stat" data-lv="90"><div class="stat-top"><span>SYSTEM DESIGN AT SCALE · 100K+ CONCURRENT USERS</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+        <div class="stat" data-lv="88"><div class="stat-top"><span>ZERO-TO-ONE PROTOTYPING · 6 POCS SHIPPED</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+        <div class="stat" data-lv="87"><div class="stat-top"><span>PYTHON / NODE.JS / REACT</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
+        <div class="stat" data-lv="85"><div class="stat-top"><span>TECH LEADERSHIP · TEAMS OF 3-5 · 10+ MENTORED</span><span class="val">00</span></div><div class="bar"><i></i></div></div>
       </div>
     </section>
 
@@ -371,36 +382,81 @@ under prefers-reduced-motion.
       <div class="stages">
         <article class="stage">
           <span class="stage-no">STAGE 1</span>
-          <h3>AI RECORDS CLASSIFICATION PIPELINE</h3>
-          <p class="tech">AWS LAMBDA · BEDROCK (CLAUDE) · TEXTRACT · S3 · CDK</p>
-          <p>
-            A document pipeline that OCRs PDFs and classifies them against
-            federal Records Disposition Schedules using seven specialized AI
-            agents. Weighted voting, evidence citations, confidence scores.
-            Every call is explainable and auditable, with a live demo UI that
-            shows the agents reasoning in real time.
-          </p>
+          <h3>SERVICE WORKBENCH ON AWS · OPEN SOURCE</h3>
+          <p class="tech">FOUNDING ENGINEER · REACT · LAMBDA · STEP FUNCTIONS · CLOUDFORMATION</p>
+          <p class="one-liner">Founded and built an open-source platform that lets university
+          researchers launch secure cloud research environments in minutes instead of months.</p>
+          <ul>
+            <li>Created the project from scratch: <b>5 prototypes</b>, then the core platform. Led a team of <b>5 engineers</b></li>
+            <li>Adopted by research institutions globally; published on the <b>AWS Solutions Library</b> (Apache-2.0, awslabs)</li>
+            <li>Ran for <b>5+ years</b> in production. 174 stars, 120 forks, 853 commits</li>
+          </ul>
+          <p class="stage-cta"><a href="https://github.com/awslabs/service-workbench-on-aws" target="_blank" rel="noopener">VIEW ON GITHUB ▸</a></p>
         </article>
 
         <article class="stage">
           <span class="stage-no">STAGE 2</span>
-          <!-- EDIT: real project -->
-          <h3>PROJECT TWO: REPLACE ME</h3>
-          <p class="tech">TECH · STACK · HERE</p>
-          <p>
-            One or two sentences: what it does, what problem it solves, what
-            was hard. Numbers score points: users served, latency cut, cost
-            saved.
-          </p>
+          <h3>CLINICAL FORM AUTO-COMPLETION AT 100K-USER SCALE</h3>
+          <p class="tech">LEAD ARCHITECT · BEDROCK (CLAUDE) · FAISS · FIREHOSE · SQS · LAMBDA · DYNAMODB</p>
+          <p class="one-liner">For the largest U.S. behavioral-health EHR provider: AI listens to
+          therapy sessions and auto-completes clinical forms, cutting 15–20 minutes
+          of paperwork per session.</p>
+          <ul>
+            <li>Architected to scale from a 50-user pilot to <b>100,000+ concurrent users</b> across 40,000 agencies</li>
+            <li><b>HIPAA-compliant</b> end to end; zero public internet exposure</li>
+            <li>Evaluated <b>15+ architecture alternatives</b>; led 3 engineers through delivery</li>
+          </ul>
         </article>
 
         <article class="stage">
           <span class="stage-no">STAGE 3</span>
-          <!-- EDIT: real project, or delete this block -->
-          <h3>PROJECT THREE: REPLACE ME</h3>
-          <p class="tech">TECH · STACK · HERE</p>
-          <p>Short and concrete beats long and vague.</p>
-          <p class="stage-cta"><a href="https://github.com/MBtea">VIEW ALL ON GITHUB ▸</a></p>
+          <h3>AI RECORD-TO-FILE MATCHING · 99.99% ACCURACY</h3>
+          <p class="tech">LEAD DESIGNER · BEDROCK LLM ADJUDICATION · TEXTRACT · FUZZY MATCHING · PYTHON</p>
+          <p class="one-liner">Linked 65,300 contract records to 96,263 PDF files that had no
+          direct connection, replacing years of manual matching before a system migration.</p>
+          <ul>
+            <li><b>98.5%+</b> resolved programmatically; human review found only <b>1 questionable match</b> (99.99% accuracy)</li>
+            <li>Cut manual reconciliation from ~65K records to under 1K, saving <b>thousands of person-hours</b></li>
+            <li>Deterministic rules first, LLM only for the ambiguous ~15–20%: accuracy at minimum cost</li>
+          </ul>
+        </article>
+
+        <article class="stage">
+          <span class="stage-no">STAGE 4</span>
+          <h3>CLINICAL KNOWLEDGE GRAPH + GENAI Q&amp;A</h3>
+          <p class="tech">DESIGN LEAD · AMAZON NEPTUNE · BEDROCK · STEP FUNCTIONS · DYNAMODB</p>
+          <p class="one-liner">Turned clinical notes into a knowledge graph so therapists get
+          answers in seconds instead of hours or days: audits included.</p>
+          <ul>
+            <li>Pipeline scales to <b>300K clinical notes/day</b> across 400 agencies</li>
+            <li><b>Under 5 seconds</b> to first answer; thousands of concurrent users</li>
+            <li>Delivered on a hard deadline for the customer's flagship conference</li>
+          </ul>
+        </article>
+
+        <article class="stage">
+          <span class="stage-no">STAGE 5</span>
+          <h3>AIRPORT MAINTENANCE ROUTE OPTIMIZATION</h3>
+          <p class="tech">DFW AIRPORT · BEDROCK · KENDRA RAG · A* PATHFINDING · 3D NAVMESH · CDK</p>
+          <p class="one-liner">Helped the world's 3rd-busiest airport cut technician travel time —
+          field techs were spending half their day walking between jobs.</p>
+          <ul>
+            <li>Built the <b>3D route visualization</b> and the <b>A*/Dijkstra pathfinding</b> over airport navigation meshes</li>
+            <li>AI work-order grouping + semantic search over <b>50,000+ equipment manuals</b></li>
+            <li>Mentored a junior engineer on this project through to <b>promotion</b></li>
+          </ul>
+        </article>
+
+        <article class="stage">
+          <span class="stage-no">STAGE 6</span>
+          <h3>MULTI-AGENT RECORDS CLASSIFICATION</h3>
+          <p class="tech">BEDROCK (CLAUDE) · 7 AI AGENTS · TEXTRACT · LAMBDA · CDK</p>
+          <p class="one-liner">A document pipeline where seven specialized AI agents read, vote on,
+          and file federal records with evidence citations and confidence scores.</p>
+          <ul>
+            <li>Every classification is <b>explainable and auditable</b>: weighted voting with per-agent evidence</li>
+            <li>Live demo UI shows the agents reasoning in <b>real time</b></li>
+          </ul>
         </article>
       </div>
     </section>
@@ -410,19 +466,39 @@ under prefers-reduced-motion.
       <h2 class="plate"><small>CAREER MODE</small>SEASON RECORD</h2>
       <div class="season">
         <div class="game">
-          <p class="when">2024 - PRESENT</p>
-          <h3>SOFTWARE ENGINEER</h3>
-          <p class="org">Amazon</p>
-          <!-- EDIT: real title/team/summary -->
-          <p>Building cloud and AI solutions on AWS. Replace with a short
-          description of your team and what you own.</p>
+          <p class="when">2025 - PRESENT</p>
+          <h3>LEAD ARCHITECT · AI SYSTEMS</h3>
+          <p class="org">Amazon Web Services</p>
+          <p>Leading architecture for large-scale AI systems: a streaming
+          clinical-AI platform scaling to 100K+ concurrent users, an LLM
+          record-matching pipeline that hit 99.99% accuracy, and an internal
+          agentic-AI workflow platform that lifted team delivery velocity
+          20–40%. Leading teams of 3–5 engineers.</p>
         </div>
         <div class="game">
-          <!-- EDIT: previous role, or delete -->
-          <p class="when">2021 - 2024</p>
-          <h3>PREVIOUS ROLE: REPLACE ME</h3>
-          <p class="org">Company</p>
-          <p>One or two sentences about what you did there.</p>
+          <p class="when">2022 - 2024</p>
+          <h3>PROTOTYPING ENGINEER · GENAI</h3>
+          <p class="org">AWS · Envision Engineering</p>
+          <p>Built zero-to-one GenAI proofs of concept for enterprise
+          customers: an educational chatbot for McGraw Hill (evaluated 4 LLMs,
+          benchmarked GPU fleets), a PII detection system for the U.S.
+          National Archives, a crisis-response chatbot for Save the Children,
+          and clinical AI for the largest U.S. behavioral-health EHR provider.</p>
+        </div>
+        <div class="game">
+          <p class="when">2019 - 2021</p>
+          <h3>FOUNDING ENGINEER · OPEN SOURCE</h3>
+          <p class="org">AWS · Service Workbench</p>
+          <p>Created Service Workbench on AWS from scratch and led a team of
+          5 engineers. The platform joined the AWS Solutions Library and served
+          research institutions globally for 5+ years.</p>
+        </div>
+        <div class="game">
+          <p class="when">CAREER STAT</p>
+          <h3>MENTORSHIP RECORD</h3>
+          <p class="org">10+ engineers coached</p>
+          <p>Mentored 10+ junior engineers on career growth and design
+          judgment, including one coached through to promotion.</p>
         </div>
       </div>
 
@@ -486,7 +562,7 @@ under prefers-reduced-motion.
       scrambleIn($('#boot-logo'), 'ZHANG.EXE', 1100);
       boot.addEventListener('click', startGame);
       document.addEventListener('keydown', startGame);
-      setTimeout(startGame, 6000); // auto-start; never hold the visitor hostage
+      setTimeout(startGame, 2500); // auto-start fast; recruiters won't wait
     }
 
     /* ---------- hero entrance ---------- */
