@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xian Zhang — Software Engineer</title>
+  <meta name="description" content="Xian Zhang. Software engineer building cloud and AI systems on AWS." />
+  <style>
+    :root {
+      --bg: #fafaf8;
+      --ink: #1c1c1a;
+      --ink-soft: #5f5e58;
+      --rule: #e3e1d8;
+      --accent: #1b5e4a;
+      --accent-soft: rgba(27, 94, 74, 0.09);
+      --card: #ffffff;
+      --on-accent: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161815;
+        --ink: #e8e6df;
+        --ink-soft: #a3a198;
+        --rule: #2e312c;
+        --accent: #5dbf9e;
+        --accent-soft: rgba(93, 191, 158, 0.12);
+        --card: #1d201c;
+        --on-accent: #10140f;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 96px; }
+
+    /* ---------- header ---------- */
+    header { padding: 88px 0 56px; }
+    .kicker {
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-size: clamp(2.1rem, 5vw, 3rem);
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      line-height: 1.12;
+    }
+    .lede {
+      margin-top: 16px;
+      font-size: 18px;
+      color: var(--ink-soft);
+      max-width: 56ch;
+    }
+    .links { margin-top: 26px; display: flex; gap: 14px; flex-wrap: wrap; }
+    .links a {
+      display: inline-block;
+      padding: 9px 18px;
+      border: 1.5px solid var(--rule);
+      border-radius: 8px;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 14.5px;
+      font-weight: 550;
+      transition: border-color 150ms ease, background 150ms ease;
+    }
+    .links a:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .links a.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    .links a.primary:hover { opacity: 0.9; }
+
+    /* ---------- sections ---------- */
+    section { margin-top: 72px; }
+    h2 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--rule);
+      margin-bottom: 28px;
+    }
+
+    /* ---------- skills ---------- */
+    .skills { display: flex; flex-wrap: wrap; gap: 10px; }
+    .skills span {
+      padding: 6px 14px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 550;
+    }
+
+    /* ---------- projects ---------- */
+    .project { padding: 22px 0; }
+    .project + .project { border-top: 1px solid var(--rule); }
+    .project h3 { font-size: 19px; font-weight: 650; letter-spacing: -0.01em; }
+    .project h3 a { color: inherit; text-decoration: none; }
+    .project h3 a:hover { color: var(--accent); }
+    .project .tech {
+      margin-top: 4px;
+      font-size: 13.5px;
+      color: var(--accent);
+      font-weight: 550;
+    }
+    .project p { margin-top: 10px; color: var(--ink-soft); max-width: 68ch; }
+
+    /* ---------- experience ---------- */
+    .job { display: grid; grid-template-columns: 150px 1fr; gap: 20px; padding: 20px 0; }
+    .job + .job { border-top: 1px solid var(--rule); }
+    .job .when { font-size: 14px; color: var(--ink-soft); padding-top: 3px; }
+    .job h3 { font-size: 17px; font-weight: 650; }
+    .job .org { color: var(--accent); font-weight: 550; font-size: 15px; }
+    .job p { margin-top: 8px; color: var(--ink-soft); font-size: 15px; max-width: 62ch; }
+
+    footer {
+      margin-top: 88px;
+      padding-top: 20px;
+      border-top: 1px solid var(--rule);
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    footer a { color: inherit; }
+
+    @media (max-width: 640px) {
+      header { padding: 56px 0 40px; }
+      .job { grid-template-columns: 1fr; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header>
+      <p class="kicker">Software Engineer · Seattle, WA</p>
+      <h1>Xian Zhang</h1>
+      <p class="lede">
+        I build cloud and AI systems on AWS. Recently focused on multi-agent
+        document-processing pipelines with Amazon Bedrock, serverless
+        architectures, and making complex systems explainable.
+      </p>
+      <div class="links">
+        <!-- EDIT: replace GITHUB-USERNAME below, and add/remove links as you like -->
+        <a class="primary" href="mailto:your-email@example.com">Email me</a>
+        <a href="https://github.com/GITHUB-USERNAME">GitHub</a>
+        <a href="https://www.linkedin.com/in/YOUR-LINKEDIN/">LinkedIn</a>
+      </div>
+    </header>
+
+    <section id="skills">
+      <h2>Skills</h2>
+      <div class="skills">
+        <!-- EDIT: adjust to your real stack -->
+        <span>AWS (Lambda, S3, CDK, Bedrock)</span>
+        <span>Node.js / JavaScript</span>
+        <span>Python</span>
+        <span>Multi-agent AI systems</span>
+        <span>Serverless architecture</span>
+        <span>Infrastructure as Code</span>
+      </div>
+    </section>
+
+    <section id="projects">
+      <h2>Selected Projects</h2>
+
+      <div class="project">
+        <h3>AI Records Classification Pipeline</h3>
+        <p class="tech">AWS Lambda · Amazon Bedrock (Claude) · Textract · S3 · CDK</p>
+        <p>
+          A document-processing pipeline that OCRs uploaded PDFs and classifies
+          them against federal Records Disposition Schedules using seven
+          specialized AI agents with weighted voting, evidence citations, and
+          confidence scores. Every classification is explainable and auditable.
+          Includes a live demo UI that visualizes the agents' reasoning in
+          real time.
+        </p>
+      </div>
+
+      <div class="project">
+        <!-- EDIT: replace with a real second project -->
+        <h3>Project Two — replace me</h3>
+        <p class="tech">Tech · stack · here</p>
+        <p>
+          One or two sentences: what it does, what problem it solves, and what
+          was interesting about building it. Link the title to the repo or a
+          live demo if public.
+        </p>
+      </div>
+
+      <div class="project">
+        <!-- EDIT: replace with a real third project, or delete this block -->
+        <h3>Project Three — replace me</h3>
+        <p class="tech">Tech · stack · here</p>
+        <p>
+          Keep descriptions short and concrete. Numbers help: users served,
+          latency cut, cost saved.
+        </p>
+      </div>
+    </section>
+
+    <section id="experience">
+      <h2>Experience</h2>
+
+      <div class="job">
+        <div class="when">2024 — Present</div>
+        <div>
+          <h3>Software Engineer</h3>
+          <p class="org">Amazon</p>
+          <!-- EDIT: your real title, team, dates, and 1-2 sentence summary -->
+          <p>
+            Building cloud and AI solutions on AWS. Replace this with a short
+            description of your team and what you own.
+          </p>
+        </div>
+      </div>
+
+      <div class="job">
+        <!-- EDIT: previous role, or delete this block -->
+        <div class="when">2021 — 2024</div>
+        <div>
+          <h3>Previous Role — replace me</h3>
+          <p class="org">Company</p>
+          <p>One or two sentences about what you did there.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>© 2026 Xian Zhang</span>
+      <span>Built with plain HTML · hosted on <a href="https://pages.github.com">GitHub Pages</a></span>
+    </footer>
+
+  </div>
+</body>
+</html>
